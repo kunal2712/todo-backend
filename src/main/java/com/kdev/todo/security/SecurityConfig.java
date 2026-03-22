@@ -48,7 +48,7 @@ public class SecurityConfig {
                 "http://localhost:3000",
                 "http://localhost:5173", // If using Vite
                 "https://kdev-todo-api.onrender.com",
-                "https://your-frontend-link.vercel.app" // Add this after you deploy React
+                "https://todoui-three.vercel.app/" // Add this after you deploy React
         ));
 
         // 2. Allow all standard methods
