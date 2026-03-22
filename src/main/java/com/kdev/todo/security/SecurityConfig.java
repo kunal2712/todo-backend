@@ -17,7 +17,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 public class SecurityConfig {
-
+//fixed
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
