@@ -3,9 +3,11 @@ package com.kdev.todo.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -23,6 +25,14 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint, JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -30,15 +40,28 @@ public class SecurityConfig {
                 // This looks for the corsConfigurationSource bean below
                 .cors(withDefaults())
                 .authorizeHttpRequests((authz) -> authz
-                        .requestMatchers("/api/todo/**").permitAll()
+                        // 1. Only permit the Auth endpoints (Login/Register)
+                        .requestMatchers("/api/todo/auth/**").permitAll()
+
+                        // 2. Explicitly require authentication for the actual data
+                        .requestMatchers("/api/todo/**").authenticated()
+
+                        // 3. Secure everything else
                         .anyRequest().authenticated()
                 )
-                .httpBasic(withDefaults());
+                // 1. Set Session to Stateless for JWT
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                );
+
+        http.exceptionHandling(exp -> exp.authenticationEntryPoint(jwtAuthenticationEntryPoint));
+
+        // 2. Critical: Add the filter BEFORE the standard Auth filter
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    // --- ADD THIS BEAN FOR DEPLOYMENT ---
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
