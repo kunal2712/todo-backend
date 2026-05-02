@@ -13,6 +13,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("api/todo/auth")
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     private final UserServiceImpl userService;

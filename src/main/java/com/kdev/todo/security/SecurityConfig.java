@@ -66,21 +66,22 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 1. Allow your local dev environment AND your future production URL
         configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:5173",
                 "http://localhost:3000",
-                "http://localhost:5173", // If using Vite
                 "https://kdev-todo-api.onrender.com",
-                "https://todoui-three.vercel.app/" // Add this after you deploy React
+                // Your specific Vercel production URL
+                "https://todoui-three.vercel.app",
+                // The specific deployment URL that gave the error (for testing)
+                "https://todoui-5bqixf2xh-kunal2712s-projects.vercel.app"
         ));
 
-        // 2. Allow all standard methods
+        // Allow all standard methods
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
-        // 3. Allow all headers
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
+        // Allow all headers - adding 'Origin' and 'X-Requested-With' for compatibility
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
 
-        // 4. Allow credentials (important if using cookies/sessions later)
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
