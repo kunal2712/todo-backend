@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("api/todo/auth")
 public class AuthController {
@@ -35,15 +37,21 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<JwtAuthResponse> loginUser(@RequestBody LoginRequest request) {
         try {
+            // 1. Get the token from your service
             String token = userService.login(request);
+
+            User user = userService.getUserByUsername(request.getUsername())
+                    .orElseThrow(()-> new RuntimeException("User not found."));
 
             JwtAuthResponse response = new JwtAuthResponse();
             response.setAccessToken(token);
             response.setTokenType("Bearer");
+            response.setId(user.getId());
 
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>((HttpHeaders) null, HttpStatus.UNAUTHORIZED);
+            // Improved error response: body is more helpful than just null headers
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 }

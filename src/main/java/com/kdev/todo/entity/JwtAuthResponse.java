@@ -4,13 +4,15 @@ public class JwtAuthResponse {
     private String accessToken;
     private String tokenType = "Bearer";
 
+    private Long id;
+
     // Standard constructors
     public JwtAuthResponse() {
     }
 
-    public JwtAuthResponse(String accessToken, String tokenType) {
+    public JwtAuthResponse(String accessToken,  Long id) {
         this.accessToken = accessToken;
-        this.tokenType = tokenType;
+        this.id = id;
     }
 
     // Getters and Setters
@@ -28,5 +30,13 @@ public class JwtAuthResponse {
 
     public void setTokenType(String tokenType) {
         this.tokenType = tokenType;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }
